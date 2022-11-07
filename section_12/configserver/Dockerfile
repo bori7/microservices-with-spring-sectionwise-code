@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim as build
 MAINTAINER bori.com
 
 # Add the application's jar to the container
-COPY target/accounts-0.0.1-SNAPSHOT.jar accounts-0.0.1-SNAPSHOT.jar
+COPY target/configserver-0.0.1-SNAPSHOT.jar configserver-0.0.1-SNAPSHOT.jar
 
 #execute the application
-ENTRYPOINT ["java","-jar","/accounts-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java","-jar","/configserver-0.0.1-SNAPSHOT.jar"]

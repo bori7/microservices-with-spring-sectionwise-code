@@ -68,7 +68,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<name>eazybytes/${project.artifactId}</name>
+						<name>bori/${project.artifactId}</name>
 					</image>
 				</configuration>
 			</plugin>

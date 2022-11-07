@@ -95,6 +95,7 @@ public class AccountsController {
 	}
 	
 	private CustomerDetails myCustomerDetailsFallBack(@RequestHeader("eazybank-correlation-id") String correlationid,Customer customer, Throwable t) {
+		logger.info("In Accounts Fallback after circuit broke");
 		Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
 		List<Loans> loans = loansFeignClient.getLoansDetails(correlationid,customer);
 		CustomerDetails customerDetails = new CustomerDetails();

@@ -10,7 +10,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=password
     networks:
-     - eazybank
+     - bori
     depends_on:
       - prometheus  
 
@@ -21,7 +21,7 @@ services:
    volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml
    networks:
-    - eazybank
+    - bori
    
   zipkin:
     image: openzipkin/zipkin
@@ -29,15 +29,15 @@ services:
     ports:
       - "9411:9411"
     networks:
-     - eazybank
+     - bori
 
   configserver:
-    image: eazybytes/configserver:latest
+    image: bori/configserver:latest
     mem_limit: 700m
     ports:
       - "8071:8071"
     networks:
-     - eazybank
+     - bori
     depends_on:
       - zipkin
     environment:
@@ -45,12 +45,12 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
       
   eurekaserver:
-    image: eazybytes/eurekaserver:latest
+    image: bori/eurekaserver:latest
     mem_limit: 700m
     ports:
       - "8070:8070"
     networks:
-     - eazybank
+     - bori
     depends_on:
       - configserver
     deploy:
@@ -65,12 +65,34 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
 
   accounts:
-    image: eazybytes/accounts:latest
+    image: bori/accounts:latest
     mem_limit: 700m
     ports:
       - "8080:8080"
     networks:
-      - eazybank
+      - bori
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  accounts2:
+    image: bori/accounts:latest
+    mem_limit: 700m
+    ports:
+      - "8081:8080"
+    networks:
+      - bori
     depends_on:
       - configserver
       - eurekaserver
@@ -87,12 +109,12 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
   
   loans:
-    image: eazybytes/loans:latest
+    image: bori/loans:latest
     mem_limit: 700m
     ports:
       - "8090:8090"
     networks:
-      - eazybank
+      - bori
     depends_on:
       - configserver
       - eurekaserver
@@ -109,12 +131,12 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
     
   cards:
-    image: eazybytes/cards:latest
+    image: bori/cards:latest
     mem_limit: 700m
     ports:
       - "9000:9000"
     networks:
-      - eazybank
+      - bori
     depends_on:
       - configserver
       - eurekaserver
@@ -131,12 +153,12 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
       
   gatewayserver:
-    image: eazybytes/gatewayserver:latest
+    image: bori/gatewayserver:latest
     mem_limit: 700m
     ports:
       - "8072:8072"
     networks:
-      - eazybank
+      - bori
     depends_on:
       - configserver
       - eurekaserver
@@ -156,4 +178,4 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
 
 networks:
-  eazybank:
+  bori:
